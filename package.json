@@ -1,0 +1,44 @@
+{
+  "name": "imp-cli",
+  "version": "0.1.0",
+  "description": "Command line interface for the Electric Imp platform",
+  "main": "bin/imp.js",
+  "engines": {
+    "node": "^1.5.1"
+  },
+  "preferGlobal": "true",
+  "bin": {
+    "imp": "bin/imp.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/beardedinventor/imp-cli.git"
+  },
+  "keywords": [
+    "electricimp",
+    "imp",
+    "iot",
+    "cli"
+  ],
+  "author": {
+    "name": "Matt Haines",
+    "email": "matt@electricimp.com"
+  },
+  "license": "MIT",
+  "scripts": {
+    "test": "jasmine"
+  },
+  "bugs": {
+    "url": "https://github.com/beardedinventor/imp-cli/issues"
+  },
+  "homepage": "https://github.com/beardedinventor/imp-cli",
+  "dependencies": {
+    "cli-prompt": "^0.4.1",
+    "cli-table": "^0.3.1",
+    "commander": "^2.8.1",
+    "imp-api": "^0.1.5"
+  },
+  "devDependencies": {
+    "jasmine": "^2.3.1"
+  }
+}
