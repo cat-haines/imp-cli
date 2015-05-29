@@ -18,8 +18,6 @@ program
 
 program.parse(process.argv);
 
-console.log(program);
-
 config.init(["apiKey"], function(err, success) {
   if (err) {
     console.log("ERROR: Could not find an API-Key");
