@@ -78,7 +78,3 @@ config.init(["apiKey", "modelId", "devices", "agentFile", "deviceFile"], functio
     }
   }
 });
-
-
-
-

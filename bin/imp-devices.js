@@ -154,5 +154,3 @@ config.init(["apiKey"], function(err, success) {
   });
 
 });
-
-
