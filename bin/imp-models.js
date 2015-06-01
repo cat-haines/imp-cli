@@ -2,6 +2,8 @@
 
 var program = require("commander");
 var prompt = require("cli-prompt");
+var Table = require("cli-table");
+
 var Imp = require("imp-api");
 var fs = require("fs");
 var ImpConfig = require("../lib/impConfig.js");
@@ -67,7 +69,19 @@ config.init(["apiKey"], function(err, success) {
           if (!found) filteredModels.push(model);
         }
       });
-      console.log(filteredModels);
+
+    var table = new Table({
+        head: ['model_id', 'model_name']
+      , colWidths: [20, 30]
+    });
+
+    filteredModels.forEach(function(model) {
+      table.push([model.id, model.name]);
+    })
+
+    console.log(table.toString());
+
+
     });
   });
 });

@@ -1,6 +1,8 @@
 #! /usr/bin/env node
 
 var program = require("commander");
+var colors = require("colors");
+
 var Imp = require("imp-api");
 var fs = require("fs");
 var ImpConfig = require("../lib/impConfig.js");
@@ -38,23 +40,23 @@ config.init(["apiKey", "modelId", "agentFile", "deviceFile", "devices"], functio
   imp.createModelRevision(config.get("modelId"), model, function(err, data) {
     if (err) {
       if (err.code != "CompileFailed") {
-        console.log("ERROR: " + err.message_short);
+        console.log(colors.red("ERROR: " + err.message_short));
         return;
       }
 
       if (err.details.agent_errors) {
         for(var i = 0; i < err.details.agent_errors.length; i ++) {
           var thisErr = err.details.agent_errors[i]
-          console.log("   ERROR: " + thisErr.error);
-          console.log("     at " + config.get("agentFile") +":" + thisErr.column + " (col "+thisErr.row+")");
+          console.log(colors.red("ERROR: " + thisErr.error));
+          console.log("   at: " + config.get("agentFile") +":" + thisErr.row + " (col "+thisErr.column+")");
         }
       }
 
       if (err.details.device_errors) {
         for(var i = 0; i < err.details.device_errors.length; i ++) {
           var thisErr = err.details.device_errors[i]
-          console.log("   ERROR: " + thisErr.error);
-          console.log("     at " + config.get("deviceFile") +":" + thisErr.column + " (col "+thisErr.row+")");
+          console.log(colors.red("ERROR: " + thisErr.error));
+          console.log("   at: " + config.get("deviceFile") +":" + thisErr.row + " (col "+thisErr.column+")");
         }
       }
 

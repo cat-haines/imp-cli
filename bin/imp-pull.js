@@ -40,7 +40,7 @@ config.init(["apiKey", "modelId", "devices", "agentFile", "deviceFile"], functio
     return;
   }
 
-  imp = new Imp({ apiBase: "canary-api.electricimp.com", apiKey: config.get("apiKey") });
+  imp = new Imp({ apiKey: config.get("apiKey") });
 
   if ("devices" in program) {
     imp.getDevices( { "model_id": config.get("modelId") }, function(err, data) {
