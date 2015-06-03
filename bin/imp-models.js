@@ -3,11 +3,9 @@
 var program = require("commander");
 var prompt = require("cli-prompt");
 var Table = require("cli-table");
-
-var Imp = require("imp-api");
 var fs = require("fs");
-var ImpConfig = require("../lib/impConfig.js");
 
+var ImpConfig = require("../lib/impConfig.js");
 var config = new ImpConfig();
 
 program
@@ -23,7 +21,7 @@ config.init(["apiKey"], function(err, success) {
     return;
   }
 
-  var imp = new Imp({ apiKey: config.get("apiKey") });
+  imp = config.createImpWithConfig();
 
   if ("active" in program && "inactive" in program) {
     console.log("ERROR: You cannot specify --active AND --inactive");

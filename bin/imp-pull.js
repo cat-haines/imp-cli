@@ -40,7 +40,7 @@ config.init(["apiKey", "modelId", "devices", "agentFile", "deviceFile"], functio
     return;
   }
 
-  imp = new Imp({ apiKey: config.get("apiKey") });
+  imp = config.createImpWithConfig();
 
   if ("devices" in program) {
     imp.getDevices( { "model_id": config.get("modelId") }, function(err, data) {

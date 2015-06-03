@@ -2,11 +2,9 @@
 
 var program = require("commander");
 var colors = require("colors");
-
-var Imp = require("imp-api");
 var fs = require("fs");
-var ImpConfig = require("../lib/impConfig.js");
 
+var ImpConfig = require("../lib/impConfig.js");
 var config = new ImpConfig();
 
 program
@@ -36,7 +34,7 @@ config.init(["apiKey", "modelId", "agentFile", "deviceFile", "devices"], functio
   // Add the tag (if one was specified)
   if ("tag" in program) model["marker"] = program.tag;
 
-  var imp = new Imp({ apiKey: config.get("apiKey") });
+  imp = config.createImpWithConfig();
   imp.createModelRevision(config.get("modelId"), model, function(err, data) {
     if (err) {
       if (err.code != "CompileFailed") {

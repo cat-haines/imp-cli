@@ -6,10 +6,10 @@ var prompt = require("cli-prompt");
 var ImpConfig = require("../lib/impConfig.js");
 var config = new ImpConfig();
 
-var Imp = require("imp-api");
 var imp;
 
-var config; // the global config
+program
+  .option("-u, --url [baseUrl]", "Overrides base URL for the API (e.g. -u canary-api.electricimp.com)")
 
 program.parse(process.argv);
 
@@ -24,7 +24,13 @@ function apiKeyPrompt(apiKey) {
   prompt(promptText, function(val) {
     if (apiKey && !val) val = apiKey;
 
-    imp = new Imp({ apiKey: val });
+    var url = "api.electricimp.com";
+    if ("url" in program) url = program.url;
+
+    config.setGlobal("apiKey", val);
+    config.setGlobal("apiBase", url);
+    imp = config.createImpWithConfig();
+
     imp.getDevices({ "device_id" : "garbage" }, function(err, data) {
       if (err) {
         // clear API Key, and try again
@@ -34,16 +40,14 @@ function apiKeyPrompt(apiKey) {
         return;
       }
 
-      // set API Key, and move on to next
-      config.setGlobal("apiKey", val);
       config.saveGlobalConfig(function(err) {
         if (err) {
           console.log("ERROR: " + err);
           return;
         }
 
-        console.log("Success! To create a new project run:");
-        console.log("   imp init");
+        console.log("Success! Wrote configuration to ~/.impconfig.");
+        console.log("To create a new project run: imp init");
       });
 
     });

@@ -5,7 +5,6 @@ var prompt = require("cli-prompt");
 var colors = require("colors");
 var fs = require("fs");
 
-var Imp = require("imp-api");
 var ImpConfig = require("../lib/impConfig.js");
 var config = new ImpConfig();
 
@@ -60,7 +59,7 @@ config.init(["apiKey"], function(err, succhess) {
     return;
   }
 
-  var imp = new Imp({ apiKey: config.get("apiKey") });
+  imp = config.createImpWithConfig();
   console.log("Opening stream..");
 
   imp.streamDeviceLogs(program.device, function(err, data) {

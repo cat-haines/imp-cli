@@ -3,11 +3,9 @@
 var program = require("commander");
 var prompt = require("cli-prompt");
 var Table = require("cli-table");
-
-var Imp = require("imp-api");
 var fs = require("fs");
-var ImpConfig = require("../lib/impConfig.js");
 
+var ImpConfig = require("../lib/impConfig.js");
 var config = new ImpConfig();
 
 program
@@ -32,7 +30,7 @@ config.init(["apiKey"], function(err, success) {
     return;
   }
 
-  var imp = new Imp({ apiKey: config.get("apiKey") });
+  imp = config.createImpWithConfig();
 
   // add
   if ("add" in program) {

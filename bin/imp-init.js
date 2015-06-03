@@ -7,7 +7,6 @@ var fs = require("fs");
 var ImpConfig = require("../lib/impConfig.js");
 var impConfig = new ImpConfig();
 
-var Imp = require("imp-api");
 var imp;
 
 program.parse(process.argv);
@@ -22,7 +21,6 @@ var config = {
   devices: []
 }
 
-
 function apiKeyPrompt(apiKey, next) {
   var promptText = "Dev Tools Api-Key";
   if (apiKey) {
@@ -33,8 +31,9 @@ function apiKeyPrompt(apiKey, next) {
 
   prompt(promptText, function(val) {
     if (apiKey && !val) val = apiKey;
+    impConfig.setLocal("apiKey", val);
 
-    imp = new Imp({ apiKey: val });
+    imp = impConfig.createImpWithConfig();
     imp.getDevices({ "device_id" : "garbage" }, function(err, data) {
       if (err) {
         // clear API Key, and try again
