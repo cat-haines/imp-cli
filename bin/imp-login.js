@@ -31,12 +31,13 @@ function apiKeyPrompt(apiKey) {
     config.setGlobal("apiBase", url);
     imp = config.createImpWithConfig();
 
+    //For Login, is { "device_id": "garbage" } the intended set of options, or is this left over from testing?
     imp.getDevices({ "device_id" : "garbage" }, function(err, data) {
       if (err) {
         // clear API Key, and try again
         imp.apiKey = null;
         console.log("ERROR: Invalid Api-Key..");
-        apiKeyPrompt(apiKey, next);
+        apiKeyPrompt(apiKey);
         return;
       }
 
