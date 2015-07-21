@@ -5,21 +5,11 @@ var prompt = require("cli-prompt");
 var fs = require("fs");
 
 var ImpConfig = require("../lib/impConfig.js");
-var impConfig = new ImpConfig();
+var config = new ImpConfig();
 
 var imp;
 
 program.parse(process.argv);
-
-// The config settings we'll eventually write
-var config = {
-  apiKey: null,
-  modelId: null,
-  modelName: null,
-  deviceFile: null,
-  agentFile: null,
-  devices: []
-}
 
 function apiKeyPrompt(apiKey, next) {
   var promptText = "Dev Tools Api-Key";
@@ -31,9 +21,9 @@ function apiKeyPrompt(apiKey, next) {
 
   prompt(promptText, function(val) {
     if (apiKey && !val) val = apiKey;
-    impConfig.setLocal("apiKey", val);
+    config.setLocal("apiKey", val);
 
-    imp = impConfig.createImpWithConfig();
+    imp = config.createImpWithConfig();
     imp.getDevices({ "device_id" : "garbage" }, function(err, data) {
       if (err) {
         // clear API Key, and try again
@@ -43,8 +33,6 @@ function apiKeyPrompt(apiKey, next) {
         return;
       }
 
-      // set API Key, and move on to next
-      config.apiKey = val;
       next();
     });
   });
@@ -66,8 +54,8 @@ function modelPrompt(next) {
             return;
           }
 
-          config.modelId = data.model.id;
-          config.modelName = data.model.name;
+          config.setLocal("modelId", data.model.id);
+          config.setLocal("modelName", data.model.name);
           next();
           return;
         });
@@ -95,8 +83,8 @@ function modelPrompt(next) {
                 return;
               }
 
-              config.modelId = data.models[i].id;
-              config.modelName = data.models[i].name;
+              config.setLocal("modelId", data.models[i].id);
+              config.setLocal("modelName", data.models[i].name);
               next();
               return;
             });
@@ -107,7 +95,7 @@ function modelPrompt(next) {
                 return;
               }
 
-              config.modelName = val;
+              config.setLocal("modelName", val);
               next();
               return;
             });
@@ -119,40 +107,47 @@ function modelPrompt(next) {
 }
 
 function getDevices(next) {
-  if (config.modelId == null) {
+  var modelId = config.getLocal("modelId");
+  var modelName = config.getLocal("modelName");
+  if (modelId == null) {
     next();
     return;
   }
 
-  imp.getDevices({ "model_id": config.modelId }, function(err, data) {
+  imp.getDevices({ "model_id": modelId }, function(err, data) {
     if (err) {
-      console.log("Warning: Could not fetch devices assigned to '" + config.modelName + "'..");
+      console.log("Warning: Could not fetch devices assigned to '" + modelName + "'..");
       next();
     }
 
+    var devices = [];
     for(var i = 0; i < data.devices.length; i++) {
-      if (data.devices[i].model_id == config.modelId) {
-        config.devices.push(data.devices[i].id);
+      if (data.devices[i].model_id == modelId) {
+        devices.push(data.devices[i].id);
       }
     }
 
-    var devices = config.devices.length == 1 ? "device" : "devices"
-    console.log("Info: Found " + config.devices.length + " " + devices + " associated with '" + config.modelName + "'");
+    config.setLocal("devices", devices);
+
+    var devicesText = devices.length == 1 ? "device" : "devices"
+    console.log("Info: Found " + devices.length + " " + devicesText + " associated with '" + modelName + "'");
     next();
   });
 }
 
 function fileNamePrompt(next) {
-  var baseFileName = config.modelName.split(" ").join("_").toLowerCase();
+  var modelName = config.getLocal("modelName");
+
+  var baseFileName = modelName.split(" ").join("_").toLowerCase();
   var defaultDeviceFileName = baseFileName + ".device.nut";
   var defaultAgentFileName = baseFileName + ".agent.nut";
 
   prompt("Device code file (" + defaultDeviceFileName + "): ", function(deviceFile) {
     if (!deviceFile) deviceFile = defaultDeviceFileName;
-    config.deviceFile = deviceFile;
+    config.setLocal("deviceFile", deviceFile);
     prompt("Agent code file (" + defaultAgentFileName + "): ", function(agentFile) {
       if (!agentFile) agentFile = defaultAgentFileName;
-      config.agentFile = agentFile;
+      config.setLocal("agentFile", agentFile);
 
       next();
     });
@@ -163,15 +158,20 @@ function finalize() {
   var deviceCode = "";
   var agentCode = "";
 
-  if (config.modelId != null) {
-    imp.getModelRevisions(config.modelId, null, function(err, data) {
+  var modelId = config.getLocal("modelId");
+  var modelName = config.getLocal("modelName");
+  var agentFile = config.getLocal("agentFile");
+  var deviceFile = config.getLocal("deviceFile");
+
+  if (modelId != null) {
+    imp.getModelRevisions(modelId, null, function(err, data) {
       if (err) {
         console.log("ERROR: Could not fetch code revisions");
         return;
       }
 
       if (data.revisions.length > 0) {
-        imp.getModelRevision(config.modelId, data.revisions[0].version, function(err, data) {
+        imp.getModelRevision(modelId, data.revisions[0].version, function(err, data) {
           if (err) {
             console.log("ERROR: Could not fetch code revisions");
             return;
@@ -180,13 +180,10 @@ function finalize() {
           deviceCode = data.revision.device_code;
           agentCode = data.revision.agent_code;
 
-         fs.writeFile(config.deviceFile, deviceCode);
-         fs.writeFile(config.agentFile, agentCode);
+         fs.writeFile(deviceFile, deviceCode);
+         fs.writeFile(agentFile, agentCode);
 
-          for (var idx in config) {
-            impConfig.setLocal(idx, config[idx]);
-          }
-          impConfig.saveLocalConfig(function(err) {
+          config.saveLocalConfig(function(err) {
             if (err) {
               console.log("ERROR: " + err);
               return;
@@ -199,18 +196,18 @@ function finalize() {
       }
     });
   } else {
-    imp.createModel(config.modelName, function(err, data) {
+    imp.createModel(modelName, function(err, data) {
       if (err) {
         console.log("ERROR: Could not create model");
         return;
       }
 
-      config.modelId = data.model.id;
+      config.setLocal("modelId", data.model.id);
 
-      fs.writeFile(config.deviceFile, deviceCode);
-      fs.writeFile(config.agentFile, agentCode);
+      fs.writeFile(deviceFile, deviceCode);
+      fs.writeFile(agentFile, agentCode);
 
-      impConfig.saveLocalConfig(function(err) {
+      config.saveLocalConfig(function(err) {
         if (err) {
           console.log("ERROR: " + err);
           return;
@@ -223,7 +220,7 @@ function finalize() {
   }
 }
 
-impConfig.init(null, function() {
+config.init(null, function() {
   // Make sure this folder doesn't already have a config file
   if (this.getLocalConfig()) {
     console.log("ERROR: .impconfig already exists.");
@@ -239,4 +236,4 @@ impConfig.init(null, function() {
       });
     });
   });
-}.bind(impConfig));
+}.bind(config));
