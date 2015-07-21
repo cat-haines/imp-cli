@@ -1,7 +1,6 @@
 #! /usr/bin/env node
 
 var program = require("commander");
-var Imp = require("imp-api");
 var fs = require("fs");
 
 var ImpConfig = require("../lib/impConfig.js");
