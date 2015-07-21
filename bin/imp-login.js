@@ -24,7 +24,7 @@ function apiKeyPrompt(apiKey) {
   prompt(promptText, function(val) {
     if (apiKey && !val) val = apiKey;
 
-    var url = "api.electricimp.com";
+    var url = "build.electricimp.com";
     if ("url" in program) url = program.url;
 
     config.setGlobal("apiKey", val);
