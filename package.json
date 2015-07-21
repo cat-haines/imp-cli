@@ -37,7 +37,7 @@
     "cli-table": "^0.3.1",
     "colors": "^1.1.0",
     "commander": "^2.8.1",
-    "imp-api": "^0.2.5",
+    "imp-api": "^0.2.7",
     "osenv": "^0.1.1"
   },
   "devDependencies": {
