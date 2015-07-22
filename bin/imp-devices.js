@@ -15,6 +15,7 @@ program
   .option("--offline", "Filters list to only display offline devices")
   .option("--assigned", "Filters list to only display assigned devices")
   .option("--unassigned", "Filters list to only display unassigned devices")
+  .option("--save", "Saves list of devices to local configuration")
 
 program.parse(process.argv);
 
@@ -151,17 +152,39 @@ config.init(["apiKey"], function(err, success) {
       }
     });
 
-
     var table = new Table({
         head: ['device_id', 'device_name', 'model_id', 'state']
       , colWidths: [20, 30, 14, 10]
     });
 
-    filteredDevices.forEach(function(device) {
-      table.push([device.id, device.name, device.model_id, device.powerstate]);
+    filteredDevices.forEach(function(device){
+      //MMCOMMENT: If any of these values are null and inserted into the table, table.toString() breaks.
+      // if (device.id == null || device.name == null || device.model_id == null || device.powerstate == null){
+      //   console.log("filteredDevices["+i+"] has null entry");
+      //   console.log("id: "+device.id+", name: "+device.name+", model_id:"+device.model_id+", powerstate: "+device.powerstate);
+      // }
+      table.push([
+        (device.id || "null"),
+        (device.name || "null"),
+        (device.model_id || "null"),
+        (device.powerstate || "null")
+      ]);
     })
 
     console.log(table.toString());
+
+    //MMCOMMENT: Should there be an option to save here?
+    if ("save" in program){
+      config.setLocal("devices", filteredDevices);
+      config.saveLocalConfig(function(err) {
+        if (err) {
+          console.log("ERROR: " + err);
+          return;
+        }
+
+        console.log("Success! Wrote configuration to local /.impconfig.");
+      });
+    }
   });
 
 });

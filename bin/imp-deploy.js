@@ -12,7 +12,8 @@ program
 
 program.parse(process.argv);
 
-config.init(["apiKey", "modelId", "agentFile", "deviceFile", "devices"], function(err, success) {
+//MMCOMMENT: Removed "devices" from list of init parameters -- don't see it used in this file.
+config.init(["apiKey", "modelId", "agentFile", "deviceFile",], function(err, success) {
   var model = {
     device_code: null,
     agent_code: null
