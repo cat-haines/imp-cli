@@ -10,7 +10,7 @@ var config = new ImpConfig();
 var imp;
 
 program
-  .option("--overwrite", "Will overwrite configuration if configuration already exists (typically used for switching between accounts)")
+  .option("--overwrite", "Will overwrite configuration if configuration already exists")
   .option("--keepCode", "Device and agent code will not be overwritten with latest model code")
   .option("--keepDeviceCode", "Device code will not be overwritten with latest model device code")
   .option("--keepAgentCode", "Agent code will not be overwritten with latest model agent code")
@@ -163,10 +163,6 @@ function fileNamePrompt(next) {
       key: "deviceFile",
     },
     {
-      label: " ",
-      key: "workaround"
-    },
-    {
       label: "Agent code file ("+defaultAgentFileName+")",
       key: "agentFile",
     }
@@ -175,7 +171,6 @@ function fileNamePrompt(next) {
     config.setLocal("deviceFile", data.agentFile || defaultAgentFileName);
     next();
   });
-
 }
 
 function finalize() {
