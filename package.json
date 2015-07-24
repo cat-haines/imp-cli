@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/beardedinventor/imp-cli",
   "dependencies": {
-    "cli-prompt": "^0.4.1",
+    "cli-prompt": "^0.4.2",
     "cli-table": "^0.3.1",
     "colors": "^1.1.0",
     "commander": "^2.8.1",
