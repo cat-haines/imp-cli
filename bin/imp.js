@@ -12,6 +12,6 @@ program
   .command("login [options]", "Sets your global API-Key")
   .command("models [options]", "Lists models, or sets the project's model")
   .command("pull [options]", "Fetches the most recent code from the imp server")
-  .command("migrate [options]", "Migrates model from development imp server to production imp server")
+  .command("migrate [options]", "Migrates model from one imp account to another (useful for commercial customers with dev accounts and limited access production accounts)")
 
 program.parse(process.argv);
