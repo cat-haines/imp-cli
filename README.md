@@ -3,10 +3,12 @@
 This Command Line Interface wraps the [imp-api npm package](https://github.com/matt-haines/imp-api) which is itself a wrapper for the [Electric Imp Build API](http://electricimp.com/docs/buildapi).
 
 # Installation
-First download or `git clone` this repository and cd into the folder from your favorite command prompt.  Then install globally with npm
+First download or `git clone` this repository and cd into the folder from your favorite command prompt.  Then install globally with npm.
+
 ```
 npm install -g
 ```
+
 # Usage
 After installation, the `imp` program will be available from your command prompt.
 
