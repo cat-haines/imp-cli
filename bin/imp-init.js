@@ -10,10 +10,16 @@ var config = new ImpConfig();
 var imp;
 
 program
-  .option("--overwrite", "will overwrite configuration if configuration already exists")
-  .option("--keepCode", "device and agent code will not be overwritten with latest model code")
-  .option("--keepDeviceCode", "device code will not be overwritten with latest model device code")
-  .option("--keepAgentCode", "agent code will not be overwritten with latest model agent code")
+  .option("-f, --force", "overwrites existing .impconfig file")
+  .option("-k, --keep [options]", "prevents code files from being overwriten during init")
+
+  .on("--help", function() {
+    console.log("  Usage:");
+    console.log("");
+    console.log("    imp init -k\t\tagent & device code files will not be overwriten");
+    console.log("    imp init -k device\tdevice code file will not be overwriten");
+    console.log("    imp init -k agent\tagent code file will not be overwriten");
+  });
 
 program.parse(process.argv);
 
@@ -189,7 +195,7 @@ function finalize() {
         return;
       }
 
-      if (data.revisions.length == 0){
+      if (data.revisions.length == 0) {
         config.saveLocalConfig(function(err) {
           if (err) {
             console.log("ERROR: " + err);
@@ -199,38 +205,43 @@ function finalize() {
           console.log("Success! To add devices run:");
           console.log("   imp devices -a <deviceId>");
         });
-      } else if (data.revisions.length > 0) {
-        imp.getModelRevision(modelId, data.revisions[0].version, function(err, data) {
+
+        return;
+      }
+
+      imp.getModelRevision(modelId, data.revisions[0].version, function(err, data) {
+        if (err) {
+          console.log("ERROR: Could not fetch code revisions");
+          return;
+        }
+
+        deviceCode = data.revision.device_code;
+        agentCode = data.revision.agent_code;
+
+        if ("keep" in program && keep === true) {
+          // don't overwrite any saved code
+        } else if ("keep" in program && program.keep == "device") {
+          // only overwrite the agent code
+          fs.writeFile(agentFile, agentCode);
+        } else if ("keep" in program && program.keep == "agent") {
+          // only overwrite the device code
+          fs.writeFile(deviceFile, deviceCode);
+        } else {
+          // overwrite both
+          fs.writeFile(deviceFile, deviceCode);
+          fs.writeFile(agentFile, agentCode);
+        }
+
+        config.saveLocalConfig(function(err) {
           if (err) {
-            console.log("ERROR: Could not fetch code revisions");
+            console.log("ERROR: " + err);
             return;
           }
 
-          deviceCode = data.revision.device_code;
-          agentCode = data.revision.agent_code;
-
-          if ("keepCode" in program || ("keepDeviceCode" in program && "keepAgentCode" in program)){
-            //Don't overwrite any saved code
-          } else if ("keepDeviceCode" in program){ //only overwrite the agent code
-            fs.writeFile(agentFile, agentCode);
-          } else if ("keepAgentCode" in program){ //only overwrite the device code
-            fs.writeFile(deviceFile, deviceCode);
-          } else {
-            fs.writeFile(deviceFile, deviceCode);
-            fs.writeFile(agentFile, agentCode);
-          }
-
-          config.saveLocalConfig(function(err) {
-            if (err) {
-              console.log("ERROR: " + err);
-              return;
-            }
-
-            console.log("Success! To add devices run:");
-            console.log("   imp devices -a <deviceId>");
-          });
+          console.log("Success! To add devices run:");
+          console.log("   imp devices -a <deviceId>");
         });
-      }
+      });
     });
   } else {
     imp.createModel(modelName, function(err, data) {
@@ -259,15 +270,8 @@ function finalize() {
 
 config.init(null, function() {
   // Make sure this folder doesn't already have a config file
-  if (this.getLocalConfig()) {
-    if (!("overwriteConfig" in program)){
-      console.log("ERROR: .impconfig already exists. Specify option '--overwriteConfig' to set new configuration.");
-      return;
-    }
-  }
-
-  if (("keepCode" in program && "keepDeviceCode" in program) || ("keepCode" in program && "keepAgentCode" in program)){
-    console.log("ERROR: Option '--keepCode' cannot be combined with either '--keepDeviceCode' or '--keepAgentCode'");
+  if (this.getLocalConfig() && !("force" in program)) {
+    console.log("ERROR: .impconfig already exists. Specify '-f' to create new configuration.");
     return;
   }
 
