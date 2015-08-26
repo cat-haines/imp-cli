@@ -23,7 +23,7 @@ var messageFormat = {
 };
 
 program
-  .option("-d, --device [device_id]", "The deviceId you would like to see logs for")
+  .option("-d, --device [device_id]", "the deviceId you would like to see logs for")
 
 program.parse(process.argv);
 

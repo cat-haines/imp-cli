@@ -9,7 +9,7 @@ var config = new ImpConfig();
 var imp;
 
 program
-  .option("-u, --url [baseUrl]", "Overrides base URL for the API (e.g. -u canary-api.electricimp.com)")
+  .option("-u, --url [baseUrl]", "overrides base URL for the API (e.g. -u canary-api.electricimp.com)")
 
 program.parse(process.argv);
 

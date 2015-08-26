@@ -8,7 +8,7 @@ var ImpConfig = require("../lib/impConfig.js");
 var config = new ImpConfig();
 
 program
-  .option("-t, --tag [tag]", "Adds a tag to the revision");
+  .option("-t, --tag [tag]", "adds a tag to the revision");
 
 program.parse(process.argv);
 

@@ -9,7 +9,7 @@ var ImpConfig = require("../lib/impConfig.js");
 var config = new ImpConfig();
 
 program
-  .option("-v, --revision [revision]", "Pulls the specified revision from development account")
+  .option("-v, --revision [revision]", "pulls the specified revision from development account")
 
 program.parse(process.argv);
 

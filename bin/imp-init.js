@@ -10,10 +10,10 @@ var config = new ImpConfig();
 var imp;
 
 program
-  .option("--overwrite", "Will overwrite configuration if configuration already exists")
-  .option("--keepCode", "Device and agent code will not be overwritten with latest model code")
-  .option("--keepDeviceCode", "Device code will not be overwritten with latest model device code")
-  .option("--keepAgentCode", "Agent code will not be overwritten with latest model agent code")
+  .option("--overwrite", "will overwrite configuration if configuration already exists")
+  .option("--keepCode", "device and agent code will not be overwritten with latest model code")
+  .option("--keepDeviceCode", "device code will not be overwritten with latest model device code")
+  .option("--keepAgentCode", "agent code will not be overwritten with latest model agent code")
 
 program.parse(process.argv);
 

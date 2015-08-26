@@ -9,12 +9,12 @@ var ImpConfig = require("../lib/impConfig.js");
 var config = new ImpConfig();
 
 program
-  .option("-a, --add [device_id]", "Adds a device to the current project")
-  .option("-r, --remove [device_id]", "Removes a device to the current project")
-  .option("--online", "Filters list to only display online devices")
-  .option("--offline", "Filters list to only display offline devices")
-  .option("--assigned", "Filters list to only display assigned devices")
-  .option("--unassigned", "Filters list to only display unassigned devices")
+  .option("-a, --add [device_id]", "adds a device to the current project")
+  .option("-r, --remove [device_id]", "removes a device to the current project")
+  .option("--online", "filters list to only display online devices")
+  .option("--offline", "filters list to only display offline devices")
+  .option("--assigned", "filters list to only display assigned devices")
+  .option("--unassigned", "filters list to only display unassigned devices")
 
 program.parse(process.argv);
 
