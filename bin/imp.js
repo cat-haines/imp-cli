@@ -3,7 +3,7 @@
 var program = require("commander");
 
 program
-  .version("0.0.1")
+  .version("0.1.0")
 
   .command("devices [options]", "Lists devices, or adds/removes devices from project")
   .command("deploy [options]", "Deploys the project")
@@ -12,6 +12,6 @@ program
   .command("login [options]", "Sets your global API-Key")
   .command("models [options]", "Lists models, or sets the project's model")
   .command("pull [options]", "Fetches the most recent code from the imp server")
-  .command("migrate [options]", "Migrates model from one imp account to another (useful for commercial customers with dev accounts and limited access production accounts)")
+  .command("migrate [options]", "Migrates model from one Electric Imp account to another")
 
 program.parse(process.argv);
