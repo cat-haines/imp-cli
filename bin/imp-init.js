@@ -174,7 +174,7 @@ function fileNamePrompt(next) {
     }
   ], function(data){
     config.setLocal("deviceFile", data.deviceFile || defaultDeviceFileName);
-    config.setLocal("deviceFile", data.agentFile || defaultAgentFileName);
+    config.setLocal("agentFile", data.agentFile || defaultAgentFileName);
     next();
   });
 }
