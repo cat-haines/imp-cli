@@ -9,22 +9,18 @@ var ImpConfig = require("../lib/impConfig.js");
 var config = new ImpConfig();
 
 program
-  .option("-v, --revision [revision]", "pulls the specified revision from development account")
+  .option("-r, --revision [revision]", "pulls the specified revision from development account")
 
 program.parse(process.argv);
 
-function apiKeyPrompt(env, apiKey, next){
-  var promptText = env+" Account Api-Key";
-  if (apiKey) {
-    promptText += " (" + apiKey + "): ";
-  } else {
-    promptText += ": ";
-  }
+function apiKeyPrompt(env, apiKey, next) {
+  var promptText = env + " Account Api-Key";
+  if (apiKey) promptText += " (" + apiKey + ")";
+  promptText += ": ";
 
   prompt(promptText, function(val){
 
-    if (apiKey && val === "next") val = apiKey;
-    else if (!apiKey && val === "next"){
+    else if (!apiKey && !val) {
       apiKeyPrompt(env, apiKey, next);
       return;
     }
@@ -34,10 +30,11 @@ function apiKeyPrompt(env, apiKey, next){
     config.setLocal(env+"apiKey", val);
 
     imp = config.createImpWithConfig();
+    // Lookup a bad device_id to make sure the API Key works
     imp.getDevices({ "device_id" : "garbage" }, function(err, data) {
       if (err) {
         // clear API Key, and try again
-        imp[env+"apiKey"] = null;
+        imp[env + "apiKey"] = null;
         console.log("ERROR: Invalid Api-Key..");
         apiKeyPrompt(env, apiKey, next);
         return;
@@ -45,26 +42,18 @@ function apiKeyPrompt(env, apiKey, next){
 
       next();
     });
-  })
+  });
 }
 
 function modelPrompt(env, next) {
-  var promptText = env+" Model Id or Name";
+  var promptText = env + " Model Id or Name";
   var modelName = config.getLocal("modelName");
-  if (modelName){
-    promptText += " ("+modelName+"): "
-  } else {
-    promptText += ": ";
-  }
+  if (modelName) promptText += " (" + modelName + ")"
+  promptText += ": ";
 
   prompt(promptText, function(val) {
-    if (!val) {
-      modelPrompt(env, next);
-      return;
-    }
-
-    if (modelName && val === "next") val = modelName;
-    else if (!modelName && val === "next"){
+    if (modelName && !val) val = modelName;
+    else if (!val) {
       modelPrompt(env, next);
       return;
     }
@@ -84,7 +73,6 @@ function modelPrompt(env, next) {
           return;
         });
       } else {
-
         // an error means no model_id match was found
         imp.getModels({ "name": val }, function(err, data) {
           if (err) {
@@ -149,11 +137,11 @@ function fileNamePrompt(next) {
   prompt.multi([
     {
       label: "Device code file ("+defaultDeviceFileName+")",
-      key: "deviceFile",
+      key: "deviceFile"
     },
     {
       label: "Agent code file ("+defaultAgentFileName+")",
-      key: "agentFile",
+      key: "agentFile"
     }
   ], function(data){
 
@@ -209,7 +197,7 @@ function deploy(next){
   var model = {
     device_code: null,
     agent_code: null
-  }
+  };
 
   // Make sure the code files exist
   if (!fs.existsSync(config.get("agentFile"))) {
@@ -221,8 +209,8 @@ function deploy(next){
     return;
   }
 
-  model.agent_code = fs.readFileSync(config.get("agentFile"), "utf8")
-  model.device_code = fs.readFileSync(config.get("deviceFile"), "utf8")
+  model.agent_code = fs.readFileSync(config.get("agentFile"), "utf8");
+  model.device_code = fs.readFileSync(config.get("deviceFile"), "utf8");
 
   // Add the tag (if one was specified)
   if ("tag" in program) model["marker"] = program.tag;
@@ -236,7 +224,7 @@ function deploy(next){
 
       if (err.details.agent_errors) {
         for(var i = 0; i < err.details.agent_errors.length; i ++) {
-          var thisErr = err.details.agent_errors[i]
+          var thisErr = err.details.agent_errors[i];
           console.log(colors.red("ERROR: " + thisErr.error));
           console.log("   at: " + config.get("agentFile") +":" + thisErr.row + " (col "+thisErr.column+")");
         }
@@ -244,7 +232,7 @@ function deploy(next){
 
       if (err.details.device_errors) {
         for(var i = 0; i < err.details.device_errors.length; i ++) {
-          var thisErr = err.details.device_errors[i]
+          var thisErr = err.details.device_errors[i];
           console.log(colors.red("ERROR: " + thisErr.error));
           console.log("   at: " + config.get("deviceFile") +":" + thisErr.row + " (col "+thisErr.column+")");
         }
@@ -276,25 +264,25 @@ function finalize(){
     }
 
     console.log("Configuration saved!")
-    console.log("FYI - next time, you can type 'next' to use the default values!");
+    console.log("FYI - next time, you can press 'enter' to use the default values!");
     console.log("=================================================================")
   });
 }
 
-config.init(null, function(){
-  apiKeyPrompt("Development", config.get("DevelopmentapiKey"), function(){
-    modelPrompt("Development", function(){
-      fileNamePrompt(function(){
-        pull(function(){
-          apiKeyPrompt("Production", config.get("ProductionapiKey"), function(){
-            modelPrompt("Production", function(){
-              deploy(function(){
+config.init(null, function() {
+  apiKeyPrompt("Development", config.get("DevelopmentapiKey"), function() {
+    modelPrompt("Development", function() {
+      fileNamePrompt(function() {
+        pull(function() {
+          apiKeyPrompt("Production", config.get("ProductionapiKey"), function() {
+            modelPrompt("Production", function() {
+              deploy(function() {
                 finalize();
-              })
-            })
-          })
-        })
-      })
-    })
-  })
+              });
+            });
+          });
+        });
+      });
+    });
+  });
 }.bind(config));

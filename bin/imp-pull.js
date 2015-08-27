@@ -9,7 +9,7 @@ var config = new ImpConfig();
 var imp;
 
 program
-  .option("-v, --revision [revision]", "pulls the specified revision")
+  .option("-r, --revision [revision]", "pulls the specified revision")
   .option("-d, --devices", "pulls and syncs device list")
 
 program.parse(process.argv);

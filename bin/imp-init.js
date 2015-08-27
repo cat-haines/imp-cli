@@ -166,11 +166,11 @@ function fileNamePrompt(next) {
   prompt.multi([
     {
       label: "Device code file ("+defaultDeviceFileName+")",
-      key: "deviceFile",
+      key: "deviceFile"
     },
     {
       label: "Agent code file ("+defaultAgentFileName+")",
-      key: "agentFile",
+      key: "agentFile"
     }
   ], function(data){
     config.setLocal("deviceFile", data.deviceFile || defaultDeviceFileName);
