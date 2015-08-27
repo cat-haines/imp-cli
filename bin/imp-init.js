@@ -9,6 +9,18 @@ var config = new ImpConfig();
 
 var imp;
 
+program
+  .option("-f, --force", "overwrites existing .impconfig file")
+  .option("-k, --keep [options]", "prevents code files from being overwriten during init")
+
+  .on("--help", function() {
+    console.log("  Usage:");
+    console.log("");
+    console.log("    imp init -k\t\tagent & device code files will not be overwriten");
+    console.log("    imp init -k device\tdevice code file will not be overwriten");
+    console.log("    imp init -k agent\tagent code file will not be overwriten");
+  });
+
 program.parse(process.argv);
 
 function apiKeyPrompt(apiKey, next) {
@@ -95,8 +107,16 @@ function modelPrompt(next) {
                 return;
               }
 
-              config.setLocal("modelName", val);
-              next();
+              imp.createModel(val, function(err, data) {
+                if (err) {
+                  console.log("ERROR: Could not create model");
+                  return;
+                }
+
+                config.setLocal("modelName", data.model.name);
+                config.setLocal("modelId", data.model.id);
+                next();
+              });
               return;
             });
           }
@@ -139,18 +159,23 @@ function fileNamePrompt(next) {
   var modelName = config.getLocal("modelName");
 
   var baseFileName = modelName.split(" ").join("_").toLowerCase();
-  var defaultDeviceFileName = baseFileName + ".device.nut";
-  var defaultAgentFileName = baseFileName + ".agent.nut";
 
-  prompt("Device code file (" + defaultDeviceFileName + "): ", function(deviceFile) {
-    if (!deviceFile) deviceFile = defaultDeviceFileName;
-    config.setLocal("deviceFile", deviceFile);
-    prompt("Agent code file (" + defaultAgentFileName + "): ", function(agentFile) {
-      if (!agentFile) agentFile = defaultAgentFileName;
-      config.setLocal("agentFile", agentFile);
+  var defaultDeviceFileName = config.getLocal("deviceFile") || (baseFileName + ".device.nut");
+  var defaultAgentFileName = config.getLocal("agentFile") || (baseFileName + ".agent.nut");
 
-      next();
-    });
+  prompt.multi([
+    {
+      label: "Device code file ("+defaultDeviceFileName+")",
+      key: "deviceFile"
+    },
+    {
+      label: "Agent code file ("+defaultAgentFileName+")",
+      key: "agentFile"
+    }
+  ], function(data){
+    config.setLocal("deviceFile", data.deviceFile || defaultDeviceFileName);
+    config.setLocal("deviceFile", data.agentFile || defaultAgentFileName);
+    next();
   });
 }
 
@@ -170,30 +195,53 @@ function finalize() {
         return;
       }
 
-      if (data.revisions.length > 0) {
-        imp.getModelRevision(modelId, data.revisions[0].version, function(err, data) {
+      if (data.revisions.length == 0) {
+        config.saveLocalConfig(function(err) {
           if (err) {
-            console.log("ERROR: Could not fetch code revisions");
+            console.log("ERROR: " + err);
             return;
           }
 
-          deviceCode = data.revision.device_code;
-          agentCode = data.revision.agent_code;
-
-         fs.writeFile(deviceFile, deviceCode);
-         fs.writeFile(agentFile, agentCode);
-
-          config.saveLocalConfig(function(err) {
-            if (err) {
-              console.log("ERROR: " + err);
-              return;
-            }
-
-            console.log("Success! To add devices run:");
-            console.log("   imp devices -a <deviceId>");
-          });
+          console.log("Success! To add devices run:");
+          console.log("   imp devices -a <deviceId>");
         });
+
+        return;
       }
+
+      imp.getModelRevision(modelId, data.revisions[0].version, function(err, data) {
+        if (err) {
+          console.log("ERROR: Could not fetch code revisions");
+          return;
+        }
+
+        deviceCode = data.revision.device_code;
+        agentCode = data.revision.agent_code;
+
+        if ("keep" in program && keep === true) {
+          // don't overwrite any saved code
+        } else if ("keep" in program && program.keep == "device") {
+          // only overwrite the agent code
+          fs.writeFile(agentFile, agentCode);
+        } else if ("keep" in program && program.keep == "agent") {
+          // only overwrite the device code
+          fs.writeFile(deviceFile, deviceCode);
+        } else {
+          // overwrite both
+          fs.writeFile(deviceFile, deviceCode);
+          fs.writeFile(agentFile, agentCode);
+        }
+
+        config.saveLocalConfig(function(err) {
+          if (err) {
+            console.log("ERROR: " + err);
+            return;
+          }
+
+          console.log("Success! To add devices run:");
+          console.log("   imp devices -a <deviceId>");
+        });
+      });
     });
   } else {
     imp.createModel(modelName, function(err, data) {
@@ -222,8 +270,8 @@ function finalize() {
 
 config.init(null, function() {
   // Make sure this folder doesn't already have a config file
-  if (this.getLocalConfig()) {
-    console.log("ERROR: .impconfig already exists.");
+  if (this.getLocalConfig() && !("force" in program)) {
+    console.log("ERROR: .impconfig already exists. Specify '-f' to create new configuration.");
     return;
   }
 

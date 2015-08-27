@@ -9,8 +9,8 @@ var ImpConfig = require("../lib/impConfig.js");
 var config = new ImpConfig();
 
 program
-  .option("--active", "Filters list to only display active models")
-  .option("--inactive", "Filters list to only display inactive models")
+  .option("--active", "filters list to only display active models")
+  .option("--inactive", "filters list to only display inactive models")
 
 program.parse(process.argv);
 

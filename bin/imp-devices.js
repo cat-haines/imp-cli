@@ -9,12 +9,12 @@ var ImpConfig = require("../lib/impConfig.js");
 var config = new ImpConfig();
 
 program
-  .option("-a, --add [device_id]", "Adds a device to the current project")
-  .option("-r, --remove [device_id]", "Removes a device to the current project")
-  .option("--online", "Filters list to only display online devices")
-  .option("--offline", "Filters list to only display offline devices")
-  .option("--assigned", "Filters list to only display assigned devices")
-  .option("--unassigned", "Filters list to only display unassigned devices")
+  .option("-a, --add [device_id]", "adds a device to the current project")
+  .option("-r, --remove [device_id]", "removes a device to the current project")
+  .option("--online", "filters list to only display online devices")
+  .option("--offline", "filters list to only display offline devices")
+  .option("--assigned", "filters list to only display assigned devices")
+  .option("--unassigned", "filters list to only display unassigned devices")
 
 program.parse(process.argv);
 
@@ -151,14 +151,21 @@ config.init(["apiKey"], function(err, success) {
       }
     });
 
-
     var table = new Table({
         head: ['device_id', 'device_name', 'model_id', 'state']
       , colWidths: [20, 30, 14, 10]
     });
 
-    filteredDevices.forEach(function(device) {
-      table.push([device.id, device.name, device.model_id, device.powerstate]);
+    filteredDevices.forEach(function(device){
+      // Skip devices with null id (can't do anything with them anyways)
+      if (!device.id) continue;
+
+      table.push([
+        device.id,
+        (device.name || "null"),
+        (device.model_id || "null"),
+        (device.powerstate || "null")
+      ]);
     })
 
     console.log(table.toString());
