@@ -14,7 +14,7 @@ program
 program.parse(process.argv);
 
 function apiKeyPrompt(apiKey) {
-  var promptText = "Dev Tools Api-Key";
+  var promptText = "Build Api-Key";
   if (apiKey) {
     promptText += " (" + apiKey + "): ";
   } else {
