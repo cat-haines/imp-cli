@@ -12,6 +12,7 @@ var imp;
 program
   .option("-f, --force", "overwrites existing .impconfig file")
   .option("-k, --keep [options]", "prevents code files from being overwriten during init")
+  .option("-g, --global", "uses global api-key and prevents api-key from being writen to .impconfig")
 
   .on("--help", function() {
     console.log("  Usage:");
@@ -24,7 +25,29 @@ program
 program.parse(process.argv);
 
 function apiKeyPrompt(apiKey, next) {
-  var promptText = "Dev Tools Api-Key";
+  if ("global" in program) {
+    // if apiKey isn't set in global config, log error and return
+    if (!config.getGlobal("apiKey")) {
+      console.log("Global API Key is not set - run `imp login` then try again.");
+      return;
+    }
+
+    imp = config.createImpWithConfig();
+    imp.getDevices({ "device_id" : "garbage" }, function(err, data) {
+      if (err) {
+        // clear API Key, and try again
+        imp.apiKey = null;
+        console.log("ERROR: Invalid Api-Key..");
+        apiKeyPrompt(apiKey, next);
+        return;
+      }
+      next();
+    });
+
+    return;
+  }
+
+  var promptText = "Build Api-Key";
   if (apiKey) {
     promptText += " (" + apiKey + "): ";
   } else {
