@@ -1,9 +1,10 @@
 #! /usr/bin/env node
 
 var program = require("commander");
+var pkg = require("../package.json");
 
 program
-  .version("0.1.0")
+  .version(pkg.version)
 
   .command("devices [options]", "list and manage devices")
   .command("init", "create an empty imp project, or reinitialize an existing one")
