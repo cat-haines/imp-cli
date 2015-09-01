@@ -158,7 +158,7 @@ config.init(["apiKey"], function(err, success) {
 
     filteredDevices.forEach(function(device){
       // Skip devices with null id (can't do anything with them anyways)
-      if (!device.id) continue;
+      if (!device.id) return;
 
       table.push([
         device.id,
