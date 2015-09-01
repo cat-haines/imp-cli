@@ -5,13 +5,13 @@ var program = require("commander");
 program
   .version("0.1.0")
 
-  .command("devices [options]", "lists devices, or adds/removes devices from project")
-  .command("deploy [options]", "deploys the project")
-  .command("init", "creates a new imp project")
-  .command("log [options]", "logs messages from specified device")
+  .command("devices [options]", "list and manage devices")
+  .command("init", "create an empty imp project, or reinitialize an existing one")
+  .command("log [options]", "display logs from a specified device")
   .command("login [options]", "sets your global API-Key")
-  .command("models [options]", "lists models, or sets the project's model")
-  .command("pull [options]", "fetches the most recent code from the imp server")
-  .command("migrate [options]", "migrates model from one Electric Imp account to another")
+  .command("migrate [options]", "migrates a model from one account to another")
+  .command("models [options]", "list and manage models")
+  .command("pull [options]", "fetch latest build from the server")
+  .command("push [options]", "update the build, and push code to developer devices")
 
 program.parse(process.argv);
