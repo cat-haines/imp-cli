@@ -19,8 +19,7 @@ function apiKeyPrompt(env, apiKey, next) {
   promptText += ": ";
 
   prompt(promptText, function(val){
-
-    else if (!apiKey && !val) {
+    if (!apiKey && !val) {
       apiKeyPrompt(env, apiKey, next);
       return;
     }
