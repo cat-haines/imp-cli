@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/matt-haines/imp-cli.git"
+    "url": "https://github.com/cat-haines/imp-cli.git"
   },
   "keywords": [
     "electricimp",
@@ -21,17 +21,17 @@
     "cli"
   ],
   "author": {
-    "name": "Matt Haines",
-    "email": "matt@electricimp.com"
+    "name": "Cat Haines",
+    "email": "haines2m@gmail.com"
   },
   "license": "MIT",
   "scripts": {
     "test": "jasmine"
   },
   "bugs": {
-    "url": "https://github.com/matt-haines/imp-cli/issues"
+    "url": "https://github.com/cat-haines/imp-cli/issues"
   },
-  "homepage": "https://github.com/matt-haines/imp-cli",
+  "homepage": "https://github.com/cat-haines/imp-cli",
   "dependencies": {
     "cli-prompt": "^0.4.2",
     "cli-table": "^0.3.1",
